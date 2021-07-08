@@ -2,12 +2,12 @@
 
 namespace Assets.Scripts
 {
-    public interface IReader
+    public interface IFileReader
     { 
         
     }
 
-    public interface IFileReader<TOutput> : IReader
+    public interface IFileReader<TOutput> : IFileReader
     {
         TOutput ReadFromFile(string path);
     }

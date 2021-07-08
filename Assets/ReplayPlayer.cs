@@ -14,11 +14,11 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         where TBall : Ball, new()
         where TPlayer : Player, new()
 {
-    [SerializeReference, HideInInspector] private IReader _readerAsReference;
+    [SerializeReference, HideInInspector] private IFileReader _readerAsReference;
     [SerializeField, HideInInspector] private UnityEngine.Object _readerAsField;
 
     [ShowInInspector]
-    public IReader Reader 
+    public IFileReader Reader 
     { 
         get 
         {
