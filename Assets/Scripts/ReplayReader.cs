@@ -9,6 +9,8 @@ using UnityEngine;
 
 namespace Assets.Scripts
 {
+
+    //TODO Maybe make the delimiters just char arrays by default
     public abstract class ReplayReader<TReplay, TBall, TPlayer> : IFileReader<TReplay> 
         where TReplay : Replay, new() 
         where TBall : Ball, new()
@@ -19,7 +21,9 @@ namespace Assets.Scripts
 
         private string frameCountPattern => $"^(\\d+)[^{frameCountDelimiter}]";
         private string ballPattern => "((?<=;:)(.+)(?=;:))";
-
+        private string playersPattern => $"((?<=:)(.+)(?=(;:)({ballPattern});:))";
+        private string playerDelimiter => ";";
+        private string playerPropertyDelimiter => ",";
 
         public virtual TReplay ReadFromFile(string path)
         {
@@ -44,10 +48,47 @@ namespace Assets.Scripts
                        frame.Objects.Add(ball);
                     }
 
+                    //Get players
+                    string[] playersPerReplayStr= ReadPlayersPerReplay(line);
+                    foreach (var playersPerFrameStr in playersPerReplayStr)
+                    {
+                        string[] playersStr = ReadPlayersPerFrame(playersPerFrameStr);
+                        foreach (var playerStr in playersStr)
+                        {
+                            TPlayer player = ConstructPlayer(playerStr);
+                            frame.Objects.Add(player);
+                        }
+                    }
                     replay.Frames.Add(frame);
                 }
             }
             return replay;
+        }
+
+        private TPlayer ConstructPlayer(string line)
+        {
+            string[] propertiesStr = line.Split(playerPropertyDelimiter.ToCharArray());
+            int id = int.Parse(propertiesStr[1]);
+            Vector3 position = new Vector3(float.Parse(propertiesStr[3]), float.Parse(propertiesStr[4]), 0);
+            float velocity = float.Parse(propertiesStr[5]);
+            return new TPlayer()
+            {
+                Id = id,
+                Position = position,
+                Velocity = velocity
+            };
+        }
+
+        private string[] ReadPlayersPerFrame(string line)
+        {
+            return line.Split(playerDelimiter.ToCharArray());
+        }
+
+        private string[] ReadPlayersPerReplay(string line)
+        {
+            return Regex.Matches(line, playersPattern, RegexOptions.Singleline).Cast<Match>()
+                .Select(m => m.Value)
+                .ToArray();
         }
 
         private TBall ConstructBall(string ballStr)
