@@ -23,7 +23,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         get 
         {
             if (_readerAsReference != null) return _readerAsReference;
-            else if (_readerAsField != null) return _readerAsReference as IFileReader<TReplay>;
+            else if (_readerAsField != null) return _readerAsReference as IReplayReader<TReplay>;
             else return null;
         } 
         set 
@@ -75,7 +75,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
             Debug.LogError("Reader cannot be left empty!");
             return;
         }
-        var reader = Reader as IFileReader<TReplay>;
+        var reader = Reader as IReplayReader<TReplay>;
         if (reader == null)
         {
             Debug.LogError("Invalid reader");
