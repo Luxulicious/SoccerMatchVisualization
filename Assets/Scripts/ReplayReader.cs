@@ -1,17 +1,20 @@
 ﻿using Assets.Scripts.Domain;
 using Sirenix.Utilities;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using TheLuxGames.Visualizer.Domain;
 using UnityEngine;
+using Object = TheLuxGames.Visualizer.Domain.Object;
 
 namespace Assets.Scripts
 {
 
     //TODO Maybe make the delimiters just char arrays by default
-    public abstract class ReplayReader<TReplay, TBall, TPlayer> : IFileReader<TReplay> 
+    //TODO Maybe make the pattern detection properties and methods also virtual... 
+    public abstract class ReplayReader<TReplay, TBall, TPlayer> : IReplayReader<TReplay> 
         where TReplay : Replay, new() 
         where TBall : Ball, new()
         where TPlayer : Player, new()
@@ -32,42 +35,104 @@ namespace Assets.Scripts
             using (BufferedStream bs = new BufferedStream(fs))
             using (StreamReader sr = new StreamReader(bs))
             {
-                string line;
-                while ((line = sr.ReadLine()) != null)
+                string frame;
+                while ((frame = sr.ReadLine()) != null)
                 {
-                    var frame = new Frame();
-                    //Get frame count
-                    string frameCountStr = ReadFrameCount(line);
-                    frame.FrameIndex = int.Parse(frameCountStr);
-
-                    //Get balls
-                    string[] ballsStr = ReadBalls(line);
-                    foreach (var ballStr in ballsStr)
-                    {
-                       TBall ball = ConstructBall(ballStr);
-                       frame.Objects.Add(ball);
-                    }
-
-                    //Get players
-                    string[] playersPerReplayStr= ReadPlayersPerReplay(line);
-                    foreach (var playersPerFrameStr in playersPerReplayStr)
-                    {
-                        string[] playersStr = ReadPlayersPerFrame(playersPerFrameStr);
-                        foreach (var playerStr in playersStr)
-                        {
-                            TPlayer player = ConstructPlayer(playerStr);
-                            frame.Objects.Add(player);
-                        }
-                    }
-                    replay.Frames.Add(frame);
+                    Frame f = GetFrame(frame);
+                    replay.Frames.Add(f);
                 }
             }
             return replay;
         }
 
-        private TPlayer ConstructPlayer(string line)
+        protected virtual Frame GetFrame(string frame)
         {
-            string[] propertiesStr = line.Split(playerPropertyDelimiter.ToCharArray());
+            var f = new Frame();
+            //Get frame count
+            int frameIndex = GetFrameIndex(frame);
+            f.FrameIndex = frameIndex;
+            //Get objects
+            //TODO Maybe change this to something more insert effecient 
+            List<Object> objects = GetObjects(frame);
+            f.Objects.AddRange(objects);
+            return f;
+        }
+
+        protected virtual List<Object> GetObjects(string frame)
+        {
+            List<Object> objects = new List<Object>();
+
+            //Get balls
+            TBall[] balls = GetBalls(frame);
+            objects.AddRange(balls);
+
+            //Get players
+            TPlayer[] players = GetPlayers(frame);
+            objects.AddRange(players);
+            return objects;
+        }
+
+        protected virtual TPlayer[] GetPlayers(string frame)
+        {
+            TPlayer[] players;
+            string[] playersStr = ReadPlayers(frame);
+            players = new TPlayer[playersStr.Length];
+            if (typeof(TPlayer) == typeof(TeamPlayer) || typeof(TPlayer).IsSubclassOf(typeof(TeamPlayer)))
+            {
+                for (int i = 0; i < playersStr.Length; i++)
+                {
+                    players[i] = ConstructTeamPlayer(playersStr[i]);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < playersStr.Length; i++)
+                {
+                    players[i] = ConstructPlayer(playersStr[i]);
+                }
+            }
+
+            return players;
+        }
+
+        private TPlayer ConstructTeamPlayer(string player)
+        {
+            string[] properties;
+            TeamPlayer tp = ConstructPlayer(player, out properties) as TeamPlayer;
+            tp.PlayerNumber = int.Parse(properties[2]);
+            tp.TeamId = int.Parse(properties[0]);
+            return tp as TPlayer;
+        }
+
+        protected virtual TBall[] GetBalls(string frame)
+        {
+            TBall[] balls;
+            string[] ballsStr = ReadBalls(frame);
+            balls = new TBall[ballsStr.Length];
+            for (int i = 0; i < ballsStr.Length; i++)
+            {
+                string ballStr = (string)ballsStr[i];
+                TBall ball = ConstructBall(ballStr);
+                balls[i] = (ball);
+            }
+
+            return balls;
+        }
+
+        private int GetFrameIndex(string frame)
+        {
+            string frameCountStr = ReadFrameIndex(frame);
+            return int.Parse(frameCountStr);
+        }
+
+        private TPlayer ConstructPlayer(string player)
+        {
+            return ConstructPlayer(player, out string[] _);
+        }
+
+        private TPlayer ConstructPlayer(string player, out string[] propertiesStr)
+        {
+            propertiesStr = player.Split(playerPropertyDelimiter.ToCharArray());
             int id = int.Parse(propertiesStr[1]);
             Vector3 position = new Vector3(float.Parse(propertiesStr[3]), float.Parse(propertiesStr[4]), 0);
             float velocity = float.Parse(propertiesStr[5]);
@@ -79,44 +144,38 @@ namespace Assets.Scripts
             };
         }
 
-        private string[] ReadPlayersPerFrame(string line)
+        private string[] ReadPlayers(string frame)
         {
-            return line.Split(playerDelimiter.ToCharArray());
+            string playersStr = Regex.Match(frame, playersPattern, RegexOptions.Singleline).Value;
+            return playersStr.Split(playerDelimiter.ToCharArray());
         }
 
-        private string[] ReadPlayersPerReplay(string line)
+        private TBall ConstructBall(string ball)
         {
-            return Regex.Matches(line, playersPattern, RegexOptions.Singleline).Cast<Match>()
-                .Select(m => m.Value)
-                .ToArray();
-        }
-
-        private TBall ConstructBall(string ballStr)
-        {
-            string[] ballPropertiesStr = ballStr.Split(ballPropertyDelimiter.ToCharArray());
+            string[] ballPropertiesStr = ball.Split(ballPropertyDelimiter.ToCharArray());
             float velocity = float.Parse(ballPropertiesStr[3]);
             float xPos = float.Parse(ballPropertiesStr[0]);
             float yPos = float.Parse(ballPropertiesStr[1]);
             float zPos = float.Parse(ballPropertiesStr[2]);
             Vector3 position = new Vector3(xPos, yPos, zPos);
-            var ball = new TBall()
+            var b = new TBall()
             {
                 Position = position,
                 Velocity = velocity
             };
-            return ball;
+            return b;
         }
 
-        private string ReadFrameCount(string line)
+        private string ReadFrameIndex(string frame)
         {
-            var frameCount = Regex.Match(line, frameCountPattern, RegexOptions.Singleline).Value;
+            var frameCount = Regex.Match(frame, frameCountPattern, RegexOptions.Singleline).Value;
             frameCount = frameCount.Trim(frameCountDelimiter.ToCharArray());
             return frameCount;
         }
 
-        private string[] ReadBalls(string line)
+        private string[] ReadBalls(string frame)
         {
-            return Regex.Matches(line, ballPattern, RegexOptions.Singleline).Cast<Match>()
+            return Regex.Matches(frame, ballPattern, RegexOptions.Singleline).Cast<Match>()
                 .Select(m => m.Value)
                 .ToArray(); 
         }
