@@ -8,12 +8,17 @@ using System.Linq;
 using TheLuxGames.Visualizer.Domain;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
+
+[Serializable]
+public class FrameFrameUnityEvent : UnityEvent<Frame, Frame> { }
 
 public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         where TReplay : Replay, new()
         where TBall : Ball, new()
         where TPlayer : Player, new()
 {
+ 
     [SerializeReference, HideInInspector] private IFileReader _readerAsReference;
     [SerializeField, HideInInspector] private UnityEngine.Object _readerAsField;
 
@@ -42,33 +47,41 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     }
 
     [SerializeField] private TReplay _replay;
-    [SerializeField] private int? currentFrame = null;
-    
+    [SerializeField] private int? _currentFrame = null;
+
+    [SerializeField] private FrameFrameUnityEvent _onFrameAdvanced = new FrameFrameUnityEvent();
+
     [ShowInInspector]
     public int CurrentFrame
     {
         get 
         {
-            if (currentFrame == null)
+            if (_currentFrame == null)
             {
                 var frame = _replay.FirstFrameIndex;
                 return frame != null ? frame.Value : -1;
             }
-            return currentFrame.Value; 
+            return _currentFrame.Value; 
         }
         set
         {
-            if (!_replay.Frames.Any(x => x.FrameIndex == value))
+            if (!_replay.Frames.ContainsKey(value))
             { 
                 Debug.LogError($"No frame found at index: {value}");
                 return;
             }
-            currentFrame = value;
+            if (_currentFrame != value)
+            {
+                var prevFrame = _currentFrame;
+                _currentFrame = value;
+                if (_currentFrame - prevFrame == 1)
+                    _onFrameAdvanced.Invoke((_currentFrame.HasValue ? _replay.Frames[_currentFrame.Value] : null), (_currentFrame.HasValue ? _replay.Frames[prevFrame.Value] : null));
+            }
         }
     }
 
     [Button("Load Replay")]
-    protected virtual void Load()
+    public virtual void Load()
     {
         if (Reader == null)
         {
@@ -94,5 +107,11 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         }
 
         _replay = reader.ReadFromFile(filePath);
+    }
+
+    [Button("Advance Frame")]
+    public virtual void AdvanceFrame()
+    {
+        CurrentFrame += 1;
     }
 }
