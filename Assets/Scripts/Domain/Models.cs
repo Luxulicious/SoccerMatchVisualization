@@ -9,22 +9,23 @@ namespace TheLuxGames.Visualizer.Domain
     [Serializable]
     public class Replay
     {
+        [Range(0, 360)]
         [SerializeField] private int _fps;
 
         //TODO Change list to something else since it's very likely ineffecient
-        [SerializeField] private List<Frame> _frames;
+        [SerializeField] private Dictionary<int, Frame> _frames;
 
-        public List<Frame> Frames
+        public Dictionary<int, Frame> Frames
         {
             get
             {
-                if (_frames == null) _frames = new List<Frame>();
+                if (_frames == null) _frames = new Dictionary<int, Frame>();
                 return _frames;
             }
 
             set
             {
-                if (_frames == null) _frames = new List<Frame>();
+                if (_frames == null) _frames = new Dictionary<int, Frame>();
                 _frames = value;
             }
         }
@@ -36,7 +37,8 @@ namespace TheLuxGames.Visualizer.Domain
             get
             {
                 if (Frames.Any())
-                    return Frames.OrderBy(x => x.FrameIndex).FirstOrDefault().FrameIndex;
+                    //return Frames.OrderBy(x => x.FrameIndex).FirstOrDefault().FrameIndex;
+                    return Frames.OrderBy(x => x.Key).First().Key;
                 else return null;
             }
         }

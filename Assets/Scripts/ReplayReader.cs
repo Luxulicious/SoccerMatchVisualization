@@ -39,7 +39,7 @@ namespace Assets.Scripts
                 while ((frame = sr.ReadLine()) != null)
                 {
                     Frame f = GetFrame(frame);
-                    replay.Frames.Add(f);
+                    replay.Frames.Add(f.FrameIndex, f);
                 }
             }
             return replay;
