@@ -9,7 +9,7 @@ namespace TheLuxGames.Visualizer.Domain
     [Serializable]
     public class Replay
     {
-        [Range(0, 360)]
+        [Range(1, 360)]
         [SerializeField] private int _fps;
 
         //TODO Change list to something else since it's very likely ineffecient
@@ -30,7 +30,10 @@ namespace TheLuxGames.Visualizer.Domain
             }
         }
 
-        public int Fps { get => _fps; set => _fps = value; }
+        [ShowInInspector]
+        private List<Frame> FramesAsList => _frames?.Values.ToList();
+
+        public int frameRate { get => _fps; set => _fps = value; }
 
         public int? FirstFrameIndex
         {
