@@ -46,12 +46,15 @@ MonoBehaviour:
   _readerAsReference:
     id: 0
   _readerAsField: {fileID: 0}
+  _paused: 1
   _replay:
-    _fps: 0
-    _frames:
-    - _frameIndex: 1510428
-    - _frameIndex: 1510429
-    - _frameIndex: 1510430
+    _fps: 1
+  _onFrameAdvanced:
+    m_PersistentCalls:
+      m_Calls: []
+  _onReplayLoaded:
+    m_PersistentCalls:
+      m_Calls: []
   references:
     version: 1
     00000000:
