@@ -12,26 +12,33 @@ using UnityEngine.Events;
 
 [Serializable]
 public class FrameFrameUnityEvent : UnityEvent<Frame, Frame> { }
+[Serializable]
+public class ReplayUnityEvent : UnityEvent<Replay> { }
 
 public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         where TReplay : Replay, new()
         where TBall : Ball, new()
         where TPlayer : Player, new()
 {
- 
     [SerializeReference, HideInInspector] private IFileReader _readerAsReference;
     [SerializeField, HideInInspector] private UnityEngine.Object _readerAsField;
 
+    [SerializeField, ReadOnly] private bool _paused = true;
     [ShowInInspector]
-    public IFileReader Reader 
-    { 
-        get 
+    public bool Playing => !_paused && Playable;
+
+    private bool Playable => _replay != null && CurrentFrame != -1 && Application.isPlaying;
+
+    [ShowInInspector]
+    public IFileReader Reader
+    {
+        get
         {
             if (_readerAsReference != null) return _readerAsReference;
             else if (_readerAsField != null) return _readerAsReference as IReplayReader<TReplay>;
             else return null;
-        } 
-        set 
+        }
+        set
         {
             if (value is UnityEngine.Object O)
             {
@@ -43,30 +50,31 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
                 _readerAsReference = value;
                 _readerAsField = null;
             }
-        } 
+        }
     }
 
     [SerializeField] private TReplay _replay;
     [SerializeField] private int? _currentFrame = null;
 
-    [SerializeField] private FrameFrameUnityEvent _onFrameAdvanced = new FrameFrameUnityEvent();
+    [SerializeField, FoldoutGroup("Events", order: 10)] private FrameFrameUnityEvent _onFrameAdvanced = new FrameFrameUnityEvent();
+    [SerializeField, FoldoutGroup("Events", order: 10)] private ReplayUnityEvent _onReplayLoaded = new ReplayUnityEvent();
 
     [ShowInInspector]
     public int CurrentFrame
     {
-        get 
+        get
         {
             if (_currentFrame == null)
             {
                 var frame = _replay.FirstFrameIndex;
                 return frame != null ? frame.Value : -1;
             }
-            return _currentFrame.Value; 
+            return _currentFrame.Value;
         }
         set
         {
             if (!_replay.Frames.ContainsKey(value))
-            { 
+            {
                 Debug.LogError($"No frame found at index: {value}");
                 return;
             }
@@ -80,7 +88,14 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         }
     }
 
-    [Button("Load Replay")]
+    private void Update()
+    {
+        if (!Playing) return;
+        var frameRate = _replay.frameRate;
+        //TODO Play at framerate
+    }
+
+    [Button("Load Replay"), HideInEditorMode]
     public virtual void Load()
     {
         if (Reader == null)
@@ -107,10 +122,30 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         }
 
         _replay = reader.ReadFromFile(filePath);
+        _onReplayLoaded.Invoke(_replay);
     }
 
-    [Button("Advance Frame")]
-    public virtual void AdvanceFrame()
+    [Button("Play"), HideInEditorMode]
+    public void Play()
+    {
+        if (!Playable) Debug.LogError("Cannot play replay");
+            _paused = false;
+    }
+
+    [Button("Pause"), HideInEditorMode]
+    public void Pause()
+    {
+        _paused = true;
+    }
+
+    [Button("Previous Frame"), HideInEditorMode]
+    public void PreviousFrame()
+    {
+        CurrentFrame -= 1;
+    }
+
+    [Button("Next Frame"), HideInEditorMode]
+    public void NextFrame()
     {
         CurrentFrame += 1;
     }
