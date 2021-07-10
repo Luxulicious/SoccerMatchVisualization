@@ -59,7 +59,7 @@ Transform:
   m_GameObject: {fileID: 7431833098631355902}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: 0}
-  m_LocalScale: {x: 1, y: 2, z: 1}
+  m_LocalScale: {x: 0.5, y: 1.8, z: 1}
   m_Children: []
   m_Father: {fileID: 7431833097019298938}
   m_RootOrder: 0
@@ -135,6 +135,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7431833098890378207}
+  - component: {fileID: 2978976694516431990}
+  - component: {fileID: 1446084225321748992}
   m_Layer: 0
   m_Name: SoccerPlayer
   m_TagString: Untagged
@@ -157,3 +159,62 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2978976694516431990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431833098890378200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4ce12f14028b5346bde7e658c98fb24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _value:
+    _id: -1
+    _position: {x: 0, y: 0, z: 0}
+    _velocity: 0
+    _teamId: 0
+    _playerNumber: 0
+  _onTeamIdChanged:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1446084225321748992}
+        m_TargetAssemblyTypeName: SetMaterialBasedOnInt, Assembly-CSharp
+        m_MethodName: SetMaterial
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1446084225321748992
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7431833098890378200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84d03eaba1a07654493856c3490c2aa6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _materials:
+  - index: -1
+    material: {fileID: 2100000, guid: 720e5893ca99c5a45ba9855309ba609e, type: 2}
+  - index: 0
+    material: {fileID: 2100000, guid: e1701b0ac74bded44addc50e5bd789c7, type: 2}
+  - index: 1
+    material: {fileID: 2100000, guid: bc37153a5b49359489061afcb7303075, type: 2}
+  - index: 2
+    material: {fileID: 2100000, guid: 9e2bc20346a9efa4ea9e902000fee3c8, type: 2}
+  - index: 3
+    material: {fileID: 2100000, guid: 71852f4dcd0b49d4bb19efbe4981b19f, type: 2}
+  - index: 4
+    material: {fileID: 2100000, guid: ce34771ccabb99645ac636122aa5bbfc, type: 2}
+  _renderer: {fileID: 7431833098631355891}

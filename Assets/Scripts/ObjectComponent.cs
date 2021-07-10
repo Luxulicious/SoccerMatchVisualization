@@ -8,5 +8,5 @@ public abstract class ObjectComponent<TObject> : MonoBehaviour where TObject : O
 {
     [SerializeField, InlineProperty, HideLabel, ReadOnly] private TObject _value;
 
-    public TObject Value { get => _value; set => this._value = value; }
+    public virtual TObject Value { get => _value; set => this._value = value; }
 }
