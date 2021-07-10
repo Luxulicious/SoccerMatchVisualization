@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Domain;
+using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,9 @@ namespace Assets.Scripts
         private string playersPattern => $"((?<=:)(.+)(?=(;:)({ballPattern});:))";
         private string playerDelimiter => ";";
         private string playerPropertyDelimiter => ",";
+
+        public virtual float CoordinateRatio => 100;
+        public virtual bool SwitchYZCoordinates => true;
 
         public virtual TReplay ReadFromFile(string path)
         {
@@ -69,6 +73,21 @@ namespace Assets.Scripts
             //Get players
             TPlayer[] players = GetPlayers(frame);
             objects.AddRange(players);
+
+            //TODO This is probably ineffecient
+            if (CoordinateRatio != 1)
+            {
+                foreach (var o in objects)
+                    o.Position /= CoordinateRatio;
+            }
+
+            //TODO This is probably ineffecient as well, recreating the entire vector3 everytime now...
+            if (SwitchYZCoordinates)
+            {
+                foreach (var o in objects)
+                    o.Position = new Vector3(o.Position.x, o.Position.z, o.Position.y);
+            }
+
             return objects;
         }
 
