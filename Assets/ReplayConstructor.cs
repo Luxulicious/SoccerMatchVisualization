@@ -26,14 +26,15 @@ public class ReplayConstructor : SerializedMonoBehaviour
             ConstructObject(o);
     }
 
-    public virtual UnityEngine.Object ConstructObject(Object o) 
+    private UnityEngine.GameObject ConstructObject(Object o) 
     {
         foreach (var t in _typeToPrefabMap.Keys)
         {
-            if (o.GetType() == t)
+            var objectType = o.GetType();
+            if (objectType == t)
             {
                 if (!_createCollectionParentObject)
-                    return Instantiate(_typeToPrefabMap[t], o.Position, Quaternion.identity, _parentTransform);
+                    return InstantiateObject(o, t, _parentTransform);
                 else
                 {
                     string parentName = t.Name + COLLECTIONSUFFIX;
@@ -44,11 +45,27 @@ public class ReplayConstructor : SerializedMonoBehaviour
                         parentGameObject.transform.SetParent(_parentTransform);
                     }
                     Transform parentTransform = parentGameObject.transform;
-                    return Instantiate(_typeToPrefabMap[t], o.Position, Quaternion.identity, parentTransform);
+                    return InstantiateObject(o, t, parentTransform);
                 }
             }
         }
         Debug.LogError($"Failed to instatiate object: {o}");
         return null;
+    }
+
+    protected virtual GameObject InstantiateObject(Object o, Type t, Transform parentTransform)
+    {
+        return (GameObject)Instantiate(_typeToPrefabMap[t], o.Position, Quaternion.identity, parentTransform);
+    }
+
+    protected TObjectComponent AddObjectComponent<TObject, TObjectComponent>(GameObject gameObject, Object value)
+    where TObjectComponent : ObjectComponent<TObject>
+    where TObject : Object
+    {
+        var component = gameObject.GetComponent<TObjectComponent>();
+        if (component == null)
+            component = gameObject.AddComponent<TObjectComponent>();
+        component.Value = value as TObject;
+        return component;
     }
 }
