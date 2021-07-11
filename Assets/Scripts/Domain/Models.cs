@@ -10,7 +10,7 @@ namespace TheLuxGames.Visualizer.Domain
     public class Replay
     {
         [Range(1, 360)]
-        [SerializeField] private int _fps;
+        [SerializeField] private int _frameRate = 25;
 
         //TODO Change list to something else since it's very likely ineffecient
         [SerializeField] private Dictionary<int, Frame> _frames;
@@ -33,7 +33,7 @@ namespace TheLuxGames.Visualizer.Domain
         [ShowInInspector]
         private List<Frame> FramesAsList => _frames?.Values.ToList();
 
-        public int frameRate { get => _fps; set => _fps = value; }
+        public int FrameRate { get => _frameRate; set => _frameRate = value; }
 
         public int? FirstFrameIndex
         {
@@ -85,6 +85,7 @@ namespace TheLuxGames.Visualizer.Domain
 
         public Vector3 Position { get => _position; set => _position = value; }
         public int Id { get => _id; set => _id = value; }
+
     }
 
     [Serializable]
@@ -95,13 +96,21 @@ namespace TheLuxGames.Visualizer.Domain
     }
 
     [Serializable]
-    public class Player : MovableObject
+    public class Player : MovableObject, IEquatable<Object>
     {
+        public bool Equals(Object other)
+        {
+            return other is Player && this.Id == other.Id;
+        }
     }
 
     [Serializable]
-    public class Ball : MovableObject
+    public class Ball : MovableObject, IEquatable<Object>
     {
+        public  bool Equals(Object other)
+        {
+            return other is Player && this.Id == other.Id;
+        }
     }
 
     public class TeamPlayer : Player

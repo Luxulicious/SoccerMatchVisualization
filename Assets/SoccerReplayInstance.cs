@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = TheLuxGames.Visualizer.Domain.Object;
 
-public class SoccerReplayConstructor : ReplayConstructor
+public class SoccerReplayInstance : ReplayInstance
 {
     protected override GameObject InstantiateObject(Object o, Type t, Transform parentTransform)
     {
@@ -15,6 +15,4 @@ public class SoccerReplayConstructor : ReplayConstructor
         else if (t == typeof(SoccerPlayer)) AddObjectComponent<SoccerPlayer, SoccerPlayerComponent>(gameObject, o);
         return gameObject;
     }
-
-
 }

@@ -23,8 +23,8 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     [SerializeReference, HideInInspector] private IFileReader _readerAsReference;
     [SerializeField, HideInInspector] private UnityEngine.Object _readerAsField;
 
-    [SerializeField, ReadOnly] private bool _paused = true;
-    [ShowInInspector]
+    [SerializeField, ReadOnly, HideInEditorMode] private bool _paused = true;
+    [ShowInInspector, HideInEditorMode]
     public bool Playing => !_paused && Playable;
 
     private bool Playable => _replay != null && CurrentFrame != -1 && Application.isPlaying;
@@ -53,7 +53,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         }
     }
 
-    [SerializeField] private TReplay _replay;
+    [SerializeField, HideInEditorMode] private TReplay _replay;
     [SerializeField] private int? _currentFrame = null;
 
     [SerializeField, FoldoutGroup("Events", order: 10)] private FrameFrameUnityEvent _onFrameAdvanced = new FrameFrameUnityEvent();
@@ -66,8 +66,8 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         {
             if (_currentFrame == null)
             {
-                var frame = _replay.FirstFrameIndex;
-                return frame != null ? frame.Value : -1;
+                _currentFrame = _replay.FirstFrameIndex;
+                return _currentFrame != null ? _currentFrame.Value : -1;
             }
             return _currentFrame.Value;
         }
@@ -76,23 +76,54 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
             if (!_replay.Frames.ContainsKey(value))
             {
                 Debug.LogError($"No frame found at index: {value}");
+                Pause();
                 return;
             }
             if (_currentFrame != value)
             {
                 var prevFrame = _currentFrame;
                 _currentFrame = value;
-                if (_currentFrame - prevFrame == 1)
+                if (_currentFrame != prevFrame)
                     _onFrameAdvanced.Invoke((_currentFrame.HasValue ? _replay.Frames[_currentFrame.Value] : null), (_currentFrame.HasValue ? _replay.Frames[prevFrame.Value] : null));
             }
         }
     }
 
+
+    [SerializeField, ReadOnly, HideInEditorMode] private float elapsedTimeSinceLastFrame = 0f;
+    [SerializeField, ReadOnly, HideInEditorMode] private float timeStep => 1.000000000f / _replay.FrameRate;
+    [SerializeField, ReadOnly, HideInEditorMode] private bool _started = false;
+
+
     private void Update()
     {
-        if (!Playing) return;
-        var frameRate = _replay.frameRate;
-        //TODO Play at framerate
+        if (!Playing)
+        {
+            elapsedTimeSinceLastFrame = 0f;
+            return;
+        }
+        if (elapsedTimeSinceLastFrame == 0f && !_started)
+        {
+            AdvanceFrame();
+            _started = true;
+        }
+        else if (elapsedTimeSinceLastFrame >= timeStep)
+        {
+            int steps = (int)(elapsedTimeSinceLastFrame / timeStep);
+            AdvanceFrame(steps);
+            elapsedTimeSinceLastFrame %= timeStep;
+        }
+        elapsedTimeSinceLastFrame += Time.deltaTime;
+    }
+
+    private void AdvanceFrame()
+    {
+        CurrentFrame++;
+    }
+
+    private void AdvanceFrame(int steps)
+    {
+        CurrentFrame += steps;
     }
 
     [Button("Load Replay"), HideInEditorMode]
@@ -129,13 +160,21 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     public void Play()
     {
         if (!Playable) Debug.LogError("Cannot play replay");
-            _paused = false;
+        _paused = false;
     }
 
     [Button("Pause"), HideInEditorMode]
     public void Pause()
     {
         _paused = true;
+        _started = false;
+    }
+
+    [Button("Reset"), HideInEditorMode]
+    public void ResetToFirstFrame()
+    {
+        CurrentFrame = _replay.FirstFrameIndex.Value; 
+        Pause();
     }
 
     [Button("Previous Frame"), HideInEditorMode]

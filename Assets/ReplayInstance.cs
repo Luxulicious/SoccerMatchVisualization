@@ -3,21 +3,23 @@ using Sirenix.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TheLuxGames.Visualizer.Domain;
 using UnityEngine;
 using Object = TheLuxGames.Visualizer.Domain.Object;
 
-public class ReplayConstructor : SerializedMonoBehaviour
+public class ReplayInstance : SerializedMonoBehaviour
 {
     private const string COLLECTIONSUFFIX = "Collection";
-    [OdinSerialize] private Dictionary<Type, UnityEngine.Object> _typeToPrefabMap;
-    [SerializeField] private Transform _parentTransform;
-    [SerializeField] private bool _createCollectionParentObject = true;
+    [OdinSerialize, FoldoutGroup("Construction")] private Dictionary<Type, UnityEngine.Object> _typeToPrefabMap = new Dictionary<Type, UnityEngine.Object>();
+    [SerializeField, FoldoutGroup("Construction")] private Transform _parentTransform;
+    [SerializeField, FoldoutGroup("Construction")] private bool _createCollectionParentObject = true;
+    [ReadOnly, HideInEditorMode, ShowInInspector, FoldoutGroup("Instance")]
+    private Dictionary<int, ObjectComponent> _objectIdToInstanceMap = new Dictionary<int, ObjectComponent>();
 
     public void Construct(Replay replay)
     {
-        foreach (var o in replay.Frames[replay.FirstFrameIndex.Value].Objects)
-            ConstructObject(o);
+        Construct(replay, replay.FirstFrameIndex.Value);
     }
 
     public void Construct(Replay replay, int frame) 
@@ -66,6 +68,20 @@ public class ReplayConstructor : SerializedMonoBehaviour
         if (component == null)
             component = gameObject.AddComponent<TObjectComponent>();
         component.Value = value as TObject;
+        _objectIdToInstanceMap.Add(value.Id, component);
         return component;
+    }
+
+    public void AdvanceFrame(Frame next, Frame previous)
+    {
+        foreach (var o in next.Objects)
+        {
+            int key = o.Id;
+            if (_objectIdToInstanceMap.ContainsKey(key))
+                _objectIdToInstanceMap[key].AdvanceFrame(o);
+            else
+                Debug.LogError($"Could not find object with id: {o.Id} in map!" +
+                    $"A new instance should be created in this case.");
+        }
     }
 }
