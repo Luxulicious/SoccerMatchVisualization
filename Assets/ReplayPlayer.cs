@@ -133,24 +133,11 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         elapsedTimeSinceLastFrame += Time.deltaTime;
     }
 
-    private void AdvanceFrame()
-    {
-        CurrentFrame++;
-    }
-
-    private void AdvanceFrame(int steps)
-    {
-        CurrentFrame += steps;
-    }
-
     [Button("Load Replay Async"), HideInEditorMode]
-
     public void StartLoadingReplayAsync()
     {
         StartCoroutine(LoadReplayAsync());
     }
-
-    [Button("Load Replay Async"), HideInEditorMode]
 
     public void StartLoadingReplayAsync(string filePath)
     {
@@ -188,24 +175,20 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         yield return null;
     }
 
-
     public void OnFrameLoaded(Frame frame)
     {
         _replay.Frames.Add(frame.FrameIndex, frame);
-        if (_replay.Frames.Count == 1)
-        {
-            _onFirstFrameOfReplayLoaded.Invoke(_replay);
-        }
+        if (_replay.Frames.Count == 1) _onFirstFrameOfReplayLoaded.Invoke(_replay);
     }
 
-
-#if UNITY_EDITOR
     [Button("Load Replay"), HideInEditorMode]
     public virtual void LoadReplay()
     {      
         var reader = ReplayReader;
 
-        var filePath = EditorUtility.OpenFilePanel("Select a file to extract replay data from", "Assets/", "dat");
+        string filePath;
+#if UNITY_EDITOR
+        filePath = EditorUtility.OpenFilePanel("Select a file to extract replay data from", "Assets/", "dat");
         if (string.IsNullOrEmpty(filePath))
         {
             Debug.LogError("Filepath is empty");
@@ -216,11 +199,13 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
             Debug.LogError($"Failed to find file at path: '{filePath}'");
             return;
         }
+#endif
 
         _replay = reader.ReadFromFile(filePath);
         _onReplayLoaded.Invoke(_replay);
     }
-#endif
+
+    #region Playback
 
     [Button("Play"), HideInEditorMode]
     public void Play()
@@ -254,4 +239,15 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     {
         CurrentFrame += 1;
     }
+
+    private void AdvanceFrame()
+    {
+        CurrentFrame++;
+    }
+
+    private void AdvanceFrame(int steps)
+    {
+        CurrentFrame += steps;
+    }
+    #endregion
 }
