@@ -14,6 +14,8 @@ using UnityEngine.Events;
 public class FrameFrameUnityEvent : UnityEvent<Frame, Frame> { }
 [Serializable]
 public class ReplayUnityEvent : UnityEvent<Replay> { }
+[Serializable]
+public class FrameUnityEvent : UnityEvent<Frame> { }
 
 public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         where TReplay : Replay, new()
@@ -53,11 +55,23 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         }
     }
 
-    [SerializeField, HideInEditorMode] private TReplay _replay;
+    public IReplayReader<TReplay> ReplayReader
+    {
+        get
+        {
+            if (Reader == null) throw new NullReferenceException("Reader cannot be left empty!");
+            var r = Reader as IReplayReader<TReplay>;
+            if(r == null) throw new Exception("Invalid reader");
+            return r;
+        }
+    }
+
+    /*[SerializeField, HideInEditorMode, HideIf("@HideReplay")]*/ private TReplay _replay;
     [SerializeField] private int? _currentFrame = null;
 
     [SerializeField, FoldoutGroup("Events", order: 10)] private FrameFrameUnityEvent _onFrameAdvanced = new FrameFrameUnityEvent();
     [SerializeField, FoldoutGroup("Events", order: 10)] private ReplayUnityEvent _onReplayLoaded = new ReplayUnityEvent();
+    [SerializeField, FoldoutGroup("Events", order: 10)] private ReplayUnityEvent _onFirstFrameOfReplayLoaded = new ReplayUnityEvent();
 
     [ShowInInspector]
     public int CurrentFrame
@@ -66,7 +80,8 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         {
             if (_currentFrame == null)
             {
-                _currentFrame = _replay.FirstFrameIndex;
+                if(_replay != null)
+                    _currentFrame = _replay.FirstFrameIndex;
                 return _currentFrame != null ? _currentFrame.Value : -1;
             }
             return _currentFrame.Value;
@@ -126,20 +141,49 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         CurrentFrame += steps;
     }
 
-    [Button("Load Replay"), HideInEditorMode]
-    public virtual void Load()
+    [Button("Load Replay Async"), HideInEditorMode]
+
+    public void LoadReplayAsyncButton()
     {
-        if (Reader == null)
+        StartCoroutine(LoadReplayAsync());
+    }
+
+    public virtual IEnumerator LoadReplayAsync()
+    {
+        var reader = ReplayReader;
+
+        var filePath = EditorUtility.OpenFilePanel("Select a file to extract replay data from", "Assets/", "dat");
+        if (string.IsNullOrEmpty(filePath))
         {
-            Debug.LogError("Reader cannot be left empty!");
-            return;
+            Debug.LogError("Filepath is empty");
+            yield return null;
         }
-        var reader = Reader as IReplayReader<TReplay>;
-        if (reader == null)
+        if (!File.Exists(filePath))
         {
-            Debug.LogError("Invalid reader");
-            return;
+            Debug.LogError($"Failed to find file at path: '{filePath}'");
+            yield return null;
         }
+
+        _replay = new TReplay();
+        yield return reader.ReadFramesAsync(filePath, OnFrameLoaded);
+        _onReplayLoaded.Invoke(_replay);
+        yield return null;
+    }
+
+    public void OnFrameLoaded(Frame frame)
+    {
+        _replay.Frames.Add(frame.FrameIndex, frame);
+        if (_replay.Frames.Count == 1)
+        {
+            _onFirstFrameOfReplayLoaded.Invoke(_replay);
+        }
+    }
+
+    [Button("Load Replay"), HideInEditorMode]
+    public virtual void LoadReplay()
+    {      
+        var reader = ReplayReader;
+
         var filePath = EditorUtility.OpenFilePanel("Select a file to extract replay data from", "Assets/", "dat");
         if (string.IsNullOrEmpty(filePath))
         {
