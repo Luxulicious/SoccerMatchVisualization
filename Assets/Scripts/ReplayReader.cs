@@ -2,6 +2,7 @@
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -51,7 +52,7 @@ namespace Assets.Scripts
             return replay;
         }
 
-        public Task ReadFramesAsync(string filePath, Action<Frame> onFrameLoaded)
+        public IEnumerator ReadFramesAsync(string filePath, Action<Frame> onFrameLoaded)
         {
             using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (BufferedStream bs = new BufferedStream(fs))
@@ -62,9 +63,10 @@ namespace Assets.Scripts
                 {
                     Frame f = GetFrame(frame);
                     onFrameLoaded.Invoke(f);
+                    yield return null;
                 }
             }
-            return Task.CompletedTask;
+            yield return null;
         }
 
 
