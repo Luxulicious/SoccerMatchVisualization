@@ -2,10 +2,12 @@
 using Sirenix.OdinInspector;
 using Sirenix.Utilities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using TheLuxGames.Visualizer.Domain;
 using UnityEngine;
 using Object = TheLuxGames.Visualizer.Domain.Object;
@@ -32,10 +34,11 @@ namespace Assets.Scripts
         public virtual float CoordinateRatio => 100;
         public virtual bool SwitchYZCoordinates => true;
 
-        public virtual TReplay ReadFromFile(string path)
+      
+        public virtual TReplay ReadFromFile(string filePath)
         {
             TReplay replay = new TReplay();
-            using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (BufferedStream bs = new BufferedStream(fs))
             using (StreamReader sr = new StreamReader(bs))
             {
@@ -48,6 +51,24 @@ namespace Assets.Scripts
             }
             return replay;
         }
+
+        public IEnumerator ReadFramesAsync(string filePath, Action<Frame> onFrameLoaded)
+        {
+            using (FileStream fs = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (BufferedStream bs = new BufferedStream(fs))
+            using (StreamReader sr = new StreamReader(bs))
+            {
+                string frame;
+                while ((frame = sr.ReadLine()) != null)
+                {
+                    Frame f = GetFrame(frame);
+                    onFrameLoaded.Invoke(f);
+                    yield return null;
+                }
+            }
+            yield return null;
+        }
+
 
         protected virtual Frame GetFrame(string frame)
         {
@@ -198,6 +219,8 @@ namespace Assets.Scripts
                 .Select(m => m.Value)
                 .ToArray(); 
         }
+
+
     }
 
     public class SoccerReplayReader : ReplayReader<SoccerReplay, SoccerBall, SoccerPlayer>
