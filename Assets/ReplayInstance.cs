@@ -17,12 +17,31 @@ public class ReplayInstance : SerializedMonoBehaviour
     [ReadOnly, HideInEditorMode, ShowInInspector, FoldoutGroup("Instance")]
     private Dictionary<int, ObjectComponent> _objectIdToInstanceMap = new Dictionary<int, ObjectComponent>();
 
+    public void Destruct() 
+    {
+        if (_objectIdToInstanceMap.Any())
+        {
+            foreach (var instance in _objectIdToInstanceMap.Values)
+            {
+                GameObject.DestroyImmediate(instance.gameObject);
+            }
+            if (_parentTransform)
+            {
+                foreach (Transform transform in _parentTransform)
+                {
+                    GameObject.DestroyImmediate(transform.gameObject);
+                }
+            }
+        }
+        _objectIdToInstanceMap.Clear();
+    }
+
     public void Construct(Replay replay)
     {
         Construct(replay, replay.FirstFrameIndex.Value);
     }
 
-    public void Construct(Replay replay, int frame) 
+    public void Construct(Replay replay, int frame)
     {
         foreach (var o in replay.Frames[frame].Objects)
             ConstructObject(o);

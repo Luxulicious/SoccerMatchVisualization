@@ -136,11 +136,15 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     [Button("Load Replay Async"), HideInEditorMode]
     public void StartLoadingReplayAsync()
     {
+        //TODO Replace with specific coroutine
+        StopAllCoroutines();
         StartCoroutine(LoadReplayAsync());
     }
 
     public void StartLoadingReplayAsync(string filePath)
-    {
+    {       
+        //TODO Replace with specific coroutine
+        StopAllCoroutines();
         StartCoroutine(LoadReplayAsync(filePath));
     }
 
@@ -177,8 +181,20 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
 
     public void OnFrameLoaded(Frame frame)
     {
-        _replay.Frames.Add(frame.FrameIndex, frame);
-        if (_replay.Frames.Count == 1) _onFirstFrameOfReplayLoaded.Invoke(_replay);
+        try
+        {
+            _replay.Frames.Add(frame.FrameIndex, frame);
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+        if (_replay.Frames.Count == 1)
+        {
+            _currentFrame = frame.FrameIndex;
+            _onFirstFrameOfReplayLoaded.Invoke(_replay);
+            ResetToFirstFrame();
+        }
     }
 
     [Button("Load Replay"), HideInEditorMode]

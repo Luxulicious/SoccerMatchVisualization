@@ -660,7 +660,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
       propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
       propertyPath: _replay._fps
@@ -716,7 +716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
       propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
       propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
@@ -732,7 +732,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
       propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: Construct
+      value: Destruct
       objectReference: {fileID: 0}
     - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
       propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -760,6 +760,30 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
       propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
+      propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
+      value: ReplayInstance, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
+      propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
+      propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[2].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
+      propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 1227888615}
+    - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
+      propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: Construct
+      objectReference: {fileID: 0}
+    - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
+      propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     m_RemovedComponents: []
