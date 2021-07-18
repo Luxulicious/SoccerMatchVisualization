@@ -2,15 +2,10 @@
 using Sirenix.OdinInspector;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using TheLuxGames.Visualizer.Domain;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
 using UnityEngine.Events;
+using SimpleFileBrowser;
 
 [Serializable]
 public class FrameFrameUnityEvent : UnityEvent<Frame, Frame> { }
@@ -24,6 +19,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         where TBall : Ball, new()
         where TPlayer : Player, new()
 {
+    private const string FILE_DIALOG_TITLE = "Select a file to extract replay data from";
     [SerializeReference, HideInInspector] private IFileReader _readerAsReference;
     [SerializeField, HideInInspector] private UnityEngine.Object _readerAsField;
 
@@ -137,9 +133,42 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     public void StartLoadingReplayAsync()
     {
         //TODO Replace with specific coroutine
+        string filePath = null;
         StopAllCoroutines();
-        StartCoroutine(LoadReplayAsync());
+        //#if UNITY_EDITOR
+        //        if (string.IsNullOrEmpty(filePath))
+        //        {
+        //            filePath = EditorUtility.OpenFilePanel(FILE_DIALOG_TITLE, "Assets/", "dat");
+        //            if (string.IsNullOrEmpty(filePath))
+        //            {
+        //                Debug.LogError("Filepath is empty");
+        //                return;
+        //            }
+        //            if (!File.Exists(filePath))
+        //            {
+        //                Debug.LogError($"Failed to find file at path: '{filePath}'");
+        //                return;
+        //            }
+        //        }
+        //        StartCoroutine(LoadReplayAsync(filePath));
+        //#else
+
+        SimpleFileBrowser.FileBrowser.ShowLoadDialog(
+            onSuccess: StartLoadingReplayAsync, pickMode: FileBrowser.PickMode.Files, allowMultiSelection: false, title: FILE_DIALOG_TITLE, onCancel: OnCancel);
+//#endif
     }
+
+    private void OnCancel()
+    {
+        Debug.Log("File selection cancelled");
+    }
+
+    public void StartLoadingReplayAsync(string[] filePath)
+    {
+        if (filePath.Length > 1) return;
+        StartLoadingReplayAsync(filePath[0]);
+    }
+
 
     public void StartLoadingReplayAsync(string filePath)
     {       
@@ -148,31 +177,10 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         StartCoroutine(LoadReplayAsync(filePath));
     }
 
-    protected virtual IEnumerator LoadReplayAsync()
-    {
-        yield return LoadReplayAsync("");
-    }
 
     protected virtual IEnumerator LoadReplayAsync(string filePath)
     {
         var reader = ReplayReader;
-#if UNITY_EDITOR
-        if (string.IsNullOrEmpty(filePath))
-        {
-            filePath = EditorUtility.OpenFilePanel("Select a file to extract replay data from", "Assets/", "dat");
-            if (string.IsNullOrEmpty(filePath))
-            {
-                Debug.LogError("Filepath is empty");
-                yield return null;
-            }
-            if (!File.Exists(filePath))
-            {
-                Debug.LogError($"Failed to find file at path: '{filePath}'");
-                yield return null;
-            }
-        }
-#endif
-
         _replay = new TReplay();
         yield return reader.ReadFramesAsync(filePath, OnFrameLoaded);
         _onReplayLoaded.Invoke(_replay);
@@ -197,31 +205,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         }
     }
 
-    [Button("Load Replay"), HideInEditorMode]
-    public virtual void LoadReplay()
-    {      
-        var reader = ReplayReader;
-
-        string filePath;
-#if UNITY_EDITOR
-        filePath = EditorUtility.OpenFilePanel("Select a file to extract replay data from", "Assets/", "dat");
-        if (string.IsNullOrEmpty(filePath))
-        {
-            Debug.LogError("Filepath is empty");
-            return;
-        }
-        if (!File.Exists(filePath))
-        {
-            Debug.LogError($"Failed to find file at path: '{filePath}'");
-            return;
-        }
-#endif
-
-        _replay = reader.ReadFromFile(filePath);
-        _onReplayLoaded.Invoke(_replay);
-    }
-
-    #region Playback
+#region Playback
 
     [Button("Play"), HideInEditorMode]
     public void Play()
@@ -265,5 +249,5 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     {
         CurrentFrame += steps;
     }
-    #endregion
+#endregion
 }
