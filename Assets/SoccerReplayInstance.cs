@@ -12,7 +12,10 @@ public class SoccerReplayInstance : ReplayInstance
     {
         var gameObject = base.InstantiateObject(o, t, parentTransform);
         if (t == typeof(SoccerBall)) AddObjectComponent<SoccerBall, SoccerBallComponent>(gameObject, o);
-        else if (t == typeof(SoccerPlayer)) AddObjectComponent<SoccerPlayer, SoccerPlayerComponent>(gameObject, o);
+        else if (t == typeof(SoccerPlayer))
+        {
+            AddObjectComponent<SoccerPlayer, SoccerPlayerComponent>(gameObject, o);
+        }
         return gameObject;
     }
 }

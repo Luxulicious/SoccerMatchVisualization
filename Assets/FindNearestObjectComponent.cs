@@ -56,7 +56,7 @@ public abstract class FindNearestObjectComponent<TComponent, TEvent> : MonoBehav
         hits.Where(x => x.collider.GetComponent<TComponent>() != null)?
             .OrderBy(x => x.distance)?
             .FirstOrDefault();
-        if (!hits.Any() || nearbiestHit == null)
+        if (!hits.Any() || nearbiestHit == null || nearbiestHit.Value.collider == null)
         {
             Nearbiest = null;
             return;
