@@ -595,6 +595,11 @@ MonoBehaviour:
   _passer: {fileID: 2978976694516431990}
   _heightOffsetLines: 0.1125
   _drawing: 0
+  _finalMultiplier: 20
+  _inPassLineMultiplier: 2
+  passLineWidth: 2
+  threatRadius: 3
+  _threatRadiusPenaltySoftener: 1
 --- !u!1 &5313539316311406445
 GameObject:
   m_ObjectHideFlags: 0

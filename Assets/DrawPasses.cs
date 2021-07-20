@@ -28,7 +28,13 @@ public class DrawPasses : MonoBehaviour
     [SerializeField, Required] private SoccerPlayerComponent _passer;
     [SerializeField] private float _heightOffsetLines = 0.1125f;
     [SerializeField] private bool _drawing = false;
-    
+
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] float _finalMultiplier = 2f;
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] float _inPassLineMultiplier = 1.5f;
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] float passLineWidth = 1f;
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] float threatRadius = 2f;
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] float _threatRadiusPenaltySoftener = 2f;
+
     public List<SoccerPlayerComponent> AllSoccerPlayers
     {
         get
@@ -128,22 +134,31 @@ public class DrawPasses : MonoBehaviour
         return safety;
     }
 
-    private static float CalculateSafety(List<Threat> threats)
+    private float CalculateSafety(List<Threat> threats)
     {
         float baseSafety = 100f;
         float safety = baseSafety;
         //TODO This calculation is very primitives and needs improvement obv 
-        if (threats.Any()) safety -= baseSafety / 2 * threats.Count;
-        if (safety < 0) safety = 0;
+        foreach (var threat in threats)
+        {
+            float threatRadiusPenaltySoftener = _threatRadiusPenaltySoftener > 0 ? _threatRadiusPenaltySoftener : 1;
+            float finalMultiplier = _finalMultiplier > 0 ? _finalMultiplier : 1;
+            float passerThreatPenalty = threat.distanceFromPasser > 0 ? 
+                _inPassLineMultiplier * (1f / threatRadiusPenaltySoftener / threat.distanceFromPasser) * _inPassLineMultiplier 
+                : 0;
+            float receiverThreatPenalty = threat.distanceFromReceiver > 0 ? 
+                _inPassLineMultiplier * (1f / threatRadiusPenaltySoftener / threat.distanceFromReceiver) * _inPassLineMultiplier 
+                : 0;
+            var safetyPenalty = (passerThreatPenalty + receiverThreatPenalty) * finalMultiplier;
+            safety -= safetyPenalty;
+            safety = safety > 0 ? safety : 0;
+        }
         return safety;
     }
 
     private List<Threat> GetPassThreats(Vector3 fromPosition, Vector3 receiverPos)
     {
         var threats = new List<Threat>();
-        var passLineWidth = 1f;
-        var threatRadius = 5f;
-
         var passLineCoordinates = GetPassLineAreaCoordinates(fromPosition, receiverPos, passLineWidth);
         AllEnemies.ForEach(enemy =>
         {
@@ -160,7 +175,7 @@ public class DrawPasses : MonoBehaviour
                 if (inThreatRadiusOfReceiver) threat.distanceFromReceiver = distanceFromReceiver;
 
                 float distanceFromPasser = Vector2.Distance(enemyPosition, fromPosition);
-                var inThreatRadiusOfPasser = distanceFromPasser <= threatRadius;
+                var inThreatRadiusOfPasser = distanceFromPasser <= threatRadius && enemyInPassLine;
                 if (inThreatRadiusOfPasser) threat.distanceFromPasser = distanceFromPasser;
 
                 threat.inPassline = enemyInPassLine;
