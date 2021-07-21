@@ -1,39 +1,41 @@
 ﻿using Assets.Scripts;
-using Assets.Scripts.Domain;
 using Sirenix.OdinInspector;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public class DrawPasses : MonoBehaviour
 {
-
-    public struct Threat 
+    public struct Threat
     {
         public float distanceFromReceiver;
         public float distanceFromPasser;
         public bool inPassline;
     }
 
-    [SerializeField, Required] private int _teamId;
-    [SerializeField, Required] private int[] _validTeamIds;
-    [SerializeField, Required] private Transform _playerTransform;
-    [SerializeField, Required] private Gradient _gradient;
-    [SerializeField, Required] private List<LineRenderer> _lineRenderers;
-    [SerializeField, Required] private GameObject _lineRendererPrefab;
-    [SerializeField, Required] private Transform _lineRendererParentTransform;
-    [SerializeField, ReadOnly] private List<SoccerPlayerComponent> _allSoccerPlayers = new List<SoccerPlayerComponent>();
     [SerializeField, Required] private SoccerPlayerComponent _passer;
-    [SerializeField] private float _heightOffsetLines = 0.1125f;
-    [SerializeField] private bool _drawing = false;
+    [SerializeField, Required] private int _teamIdOfPasser;
 
-    [SerializeField, FoldoutGroup("Safety Formula Settings")] float _finalMultiplier = 2f;
-    [SerializeField, FoldoutGroup("Safety Formula Settings")] float _inPassLineMultiplier = 1.5f;
-    [SerializeField, FoldoutGroup("Safety Formula Settings")] float passLineWidth = 1f;
-    [SerializeField, FoldoutGroup("Safety Formula Settings")] float threatRadius = 2f;
-    [SerializeField, FoldoutGroup("Safety Formula Settings")] float _threatRadiusPenaltySoftener = 2f;
+    //TODO This should be extracted to a universal constant/so
+    [SerializeField, Required] private int[] _validTeamIds;
+
+    [SerializeField, Required] private Transform _passerTransform;
+
+    [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private Gradient _gradient;
+    [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private List<LineRenderer> _lineRenderers;
+    [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private GameObject _lineRendererPrefab;
+    [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private Transform _lineRendererParentTransform;
+    [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private float _heightOffsetLines = 0.1125f;
+    [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private bool _drawing = false;
+
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] private float _finalMultiplier = 2f;
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] private float _inPassLineMultiplier = 1.5f;
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] private float passLineWidth = 1f;
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] private float threatRadius = 2f;
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] private float _threatRadiusPenaltySoftener = 2f;
+    [SerializeField, FoldoutGroup("Safety Formula Settings")] private float _baseSafety = 100f;
+
+    [SerializeField, ReadOnly] private List<SoccerPlayerComponent> _allSoccerPlayers = new List<SoccerPlayerComponent>();
 
     public List<SoccerPlayerComponent> AllSoccerPlayers
     {
@@ -44,11 +46,12 @@ public class DrawPasses : MonoBehaviour
             if (!_allSoccerPlayers.Any()) _allSoccerPlayers = FindObjectsOfType<SoccerPlayerComponent>().ToList();
             return _allSoccerPlayers;
         }
-        set 
+        set
         {
             _allSoccerPlayers = value;
         }
     }
+
     public List<SoccerPlayerComponent> AllFellowTeamPlayers
     {
         get
@@ -69,7 +72,7 @@ public class DrawPasses : MonoBehaviour
             return AllSoccerPlayers.Where(x =>
             {
                 bool isValidTeamId = IsValidTeamId(x);
-                bool notInSameTeam = x.Value.TeamId != _teamId;
+                bool notInSameTeam = x.Value.TeamId != _teamIdOfPasser;
                 return isValidTeamId && notInSameTeam;
             }).ToList();
         }
@@ -80,7 +83,7 @@ public class DrawPasses : MonoBehaviour
         return _validTeamIds.Any(validTeamId => soccerPlayer.Value.TeamId == validTeamId);
     }
 
-    public int TeamId { get => _teamId; set => _teamId = value; }
+    public int TeamId { get => _teamIdOfPasser; set => _teamIdOfPasser = value; }
 
     public void StartDrawing()
     {
@@ -96,7 +99,7 @@ public class DrawPasses : MonoBehaviour
 
     public void Update()
     {
-        if(_drawing) Draw();
+        if (_drawing) Draw();
     }
 
     [Button("Draw")]
@@ -112,8 +115,7 @@ public class DrawPasses : MonoBehaviour
             Color color = _gradient.Evaluate(safetyEvaluation);
             _lineRenderers[i].startColor = color;
             _lineRenderers[i].endColor = color;
-            _lineRenderers[i].SetPositions(new Vector3[] { _playerTransform.position + (Vector3.up * _heightOffsetLines), to.transform.position + (Vector3.up * _heightOffsetLines) });
-
+            _lineRenderers[i].SetPositions(new Vector3[] { _passerTransform.position + (Vector3.up * _heightOffsetLines), to.transform.position + (Vector3.up * _heightOffsetLines) });
         }
     }
 
@@ -136,24 +138,39 @@ public class DrawPasses : MonoBehaviour
 
     private float CalculateSafety(List<Threat> threats)
     {
-        float baseSafety = 100f;
-        float safety = baseSafety;
-        //TODO This calculation is very primitives and needs improvement obv 
-        foreach (var threat in threats)
+        float safety = _baseSafety;
+        foreach (Threat threat in threats)
         {
             float threatRadiusPenaltySoftener = _threatRadiusPenaltySoftener > 0 ? _threatRadiusPenaltySoftener : 1;
             float finalMultiplier = _finalMultiplier > 0 ? _finalMultiplier : 1;
-            float passerThreatPenalty = threat.distanceFromPasser > 0 ? 
-                _inPassLineMultiplier * (1f / threatRadiusPenaltySoftener / threat.distanceFromPasser) * _inPassLineMultiplier 
-                : 0;
-            float receiverThreatPenalty = threat.distanceFromReceiver > 0 ? 
-                _inPassLineMultiplier * (1f / threatRadiusPenaltySoftener / threat.distanceFromReceiver) * _inPassLineMultiplier 
-                : 0;
-            var safetyPenalty = (passerThreatPenalty + receiverThreatPenalty) * finalMultiplier;
+            float passerThreatPenalty = CalculatePasserPenalty(threat, threatRadiusPenaltySoftener);
+            float receiverThreatPenalty = CalculateReceiverPenalty(threat, threatRadiusPenaltySoftener);
+            float safetyPenalty = CalculateFinalPenalty(finalMultiplier, passerThreatPenalty, receiverThreatPenalty);
             safety -= safetyPenalty;
             safety = safety > 0 ? safety : 0;
         }
         return safety;
+    }
+
+    private static float CalculateFinalPenalty(float finalMultiplier, float passerThreatPenalty, float receiverThreatPenalty)
+    {
+        return (passerThreatPenalty + receiverThreatPenalty) * finalMultiplier;
+    }
+
+    private float CalculatePasserPenalty(Threat threat, float threatRadiusPenaltySoftener)
+    {
+        float passerThreatPenalty;
+        if (threat.distanceFromPasser > 0) passerThreatPenalty = 2 * _inPassLineMultiplier * (1f / threatRadiusPenaltySoftener / threat.distanceFromPasser);
+        else passerThreatPenalty = 0;
+        return passerThreatPenalty;
+    }
+
+    private float CalculateReceiverPenalty(Threat threat, float threatRadiusPenaltySoftener)
+    {
+        float receiverThreatPenalty;
+        if (threat.distanceFromReceiver > 0) receiverThreatPenalty = 2 * _inPassLineMultiplier * (1f / threatRadiusPenaltySoftener / threat.distanceFromReceiver);
+        else receiverThreatPenalty = 0;
+        return receiverThreatPenalty;
     }
 
     private List<Threat> GetPassThreats(Vector3 fromPosition, Vector3 receiverPos)
@@ -163,8 +180,8 @@ public class DrawPasses : MonoBehaviour
         AllEnemies.ForEach(enemy =>
         {
             Vector2 enemyPosition = enemy.Value.Position;
-            var enemyInPassLine = PointInsidePolygon(passLineCoordinates, enemyPosition);
-            var enemyInReceiverThreatRadius = PointInsideCircle(threatRadius, receiverPos, enemyPosition);
+            var enemyInPassLine = MathUtil.PointInsidePolygon(passLineCoordinates, enemyPosition);
+            var enemyInReceiverThreatRadius = MathUtil.PointInsideCircle(threatRadius, receiverPos, enemyPosition);
             var enemyInThreatRange = enemyInPassLine || enemyInReceiverThreatRadius;
 
             if (enemyInThreatRange)
@@ -185,39 +202,10 @@ public class DrawPasses : MonoBehaviour
         });
         return threats;
     }
-    
+
     private Vector2[] GetPassLineAreaCoordinates(Vector2 from, Vector2 to, float width)
     {
         var axis = (to - from).normalized;
-        return GetAxisAlignedRectangleCoordinates(from, to, width, axis);
+        return MathUtil.GetAxisAlignedRectangleCoordinates(from, to, width, axis);
     }
-
-    //TODO Move these math functions below to their own class
-    private static Vector2[] GetAxisAlignedRectangleCoordinates(Vector2 start, Vector2 end, float width, Vector2 axis)
-    {
-        Vector2 perpendicularDir = new Vector2(-axis.y, axis.x);
-        float extents = width / 2;
-        Vector2 a = start - extents * perpendicularDir;
-        Vector2 b = start + extents * perpendicularDir;
-        Vector2 c = end + extents * perpendicularDir;
-        Vector2 d = end - extents * perpendicularDir;
-        return new Vector2[] { a, b, c, d };
-    }
-
-    private static bool PointInsidePolygon(Vector2[] polygon, Vector2 point)
-    {
-        //Source: http://wiki.unity3d.com/index.php?title=PolyContainsPoint&oldid=20475
-        var j = polygon.Length - 1;
-        var inside = false;
-        for (int i = 0; i < polygon.Length; j = i++)
-        {
-            if (((polygon[i].y <= point.y && point.y < polygon[j].y) || (polygon[j].y <= point.y && point.y < polygon[i].y)) &&
-               (point.x < (polygon[j].x - polygon[i].x) * (point.y - polygon[i].y) / (polygon[j].y - polygon[i].y) + polygon[i].x))
-                inside = !inside;
-        }
-        return inside;
-    }
-
-    private bool PointInsideCircle(float radius, Vector2 origin, Vector2 point) => Vector2.Distance(origin, point) <= radius;
-
 }
