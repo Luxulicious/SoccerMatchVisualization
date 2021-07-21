@@ -23,13 +23,13 @@ public class ReplayInstance : SerializedMonoBehaviour
         {
             foreach (var instance in _objectIdToInstanceMap.Values)
             {
-                GameObject.DestroyImmediate(instance.gameObject);
+                DestroyImmediate(instance.gameObject);
             }
             if (_parentTransform)
             {
                 foreach (Transform transform in _parentTransform)
                 {
-                    GameObject.DestroyImmediate(transform.gameObject);
+                    DestroyImmediate(transform.gameObject);
                 }
             }
         }
@@ -44,7 +44,7 @@ public class ReplayInstance : SerializedMonoBehaviour
     public void Construct(Replay replay, int frame)
     {
         foreach (var o in replay.Frames[frame].Objects)
-            ConstructObject(o);
+            ConstructObject(o.Value);
     }
 
     private UnityEngine.GameObject ConstructObject(Object o)
@@ -93,7 +93,7 @@ public class ReplayInstance : SerializedMonoBehaviour
 
     public void AdvanceFrame(Frame next, Frame previous)
     {
-        foreach (var o in next.Objects)
+        foreach (var o in next.Objects.Values)
         {
             int key = o.Id;
             if (_objectIdToInstanceMap.ContainsKey(key))

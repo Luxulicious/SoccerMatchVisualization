@@ -12,18 +12,18 @@ namespace TheLuxGames.Visualizer.Domain
         [SerializeField] private int _frameIndex;
 
         //TODO This should obviously not be a simple list in the long term due to performance reasons
-        [SerializeField] private List<Object> _objects;
+        [SerializeField] private Dictionary<int, Object> _objects;
 
-        public List<Object> Objects
+        public Dictionary<int, Object> Objects
         {
             get
             {
-                if (_objects == null) _objects = new List<Object>();
+                if (_objects == null) _objects = new Dictionary<int, Object>();
                 return _objects;
             }
             set
             {
-                if (_objects == null) _objects = new List<Object>();
+                if (_objects == null) _objects = new Dictionary<int, Object>();
                 _objects = value;
             }
         }
