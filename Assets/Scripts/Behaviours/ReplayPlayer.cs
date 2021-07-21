@@ -131,30 +131,13 @@ namespace TheLuxGames.Visualizer.Behaviours
         [Button("Load Replay Async"), HideInEditorMode]
         public void StartLoadingReplayAsync()
         {
-            //TODO Replace with specific coroutine
             string filePath = null;
+            //Should ideally disable specific coroutine or just use async
             StopAllCoroutines();
-            //#if UNITY_EDITOR
-            //        if (string.IsNullOrEmpty(filePath))
-            //        {
-            //            filePath = EditorUtility.OpenFilePanel(FILE_DIALOG_TITLE, "Assets/", "dat");
-            //            if (string.IsNullOrEmpty(filePath))
-            //            {
-            //                Debug.LogError("Filepath is empty");
-            //                return;
-            //            }
-            //            if (!File.Exists(filePath))
-            //            {
-            //                Debug.LogError($"Failed to find file at path: '{filePath}'");
-            //                return;
-            //            }
-            //        }
-            //        StartCoroutine(LoadReplayAsync(filePath));
-            //#else
+
 
             FileBrowser.ShowLoadDialog(
                 onSuccess: StartLoadingReplayAsync, pickMode: FileBrowser.PickMode.Files, allowMultiSelection: false, title: FILE_DIALOG_TITLE, onCancel: OnCancel);
-            //#endif
         }
 
         private void OnCancel()
@@ -202,8 +185,6 @@ namespace TheLuxGames.Visualizer.Behaviours
             }
         }
 
-        #region Playback
-
         [Button("Play"), HideInEditorMode]
         public void Play()
         {
@@ -247,6 +228,10 @@ namespace TheLuxGames.Visualizer.Behaviours
             CurrentFrame += steps;
         }
 
-        #endregion Playback
+
+        public void SetFrameRate(string frameRate)
+        {
+            this._replay.FrameRate = int.Parse(frameRate);
+        }
     }
 }
