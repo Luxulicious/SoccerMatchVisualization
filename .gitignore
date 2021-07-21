@@ -40,3 +40,6 @@ sysinfo.txt
 [Aa]ssets/Plugins/Sirenix.meta
 [Aa]ssets/TextMesh Pro
 Assets/TextMesh Pro.meta
+CodeCoverage/
+CodeCovertage.meta
+/ProjectSettings/Packages/com.unity.testtools.codecoverage
