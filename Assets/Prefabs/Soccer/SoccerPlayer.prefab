@@ -594,12 +594,7 @@ MonoBehaviour:
   _lineRendererParentTransform: {fileID: 6733244711837799209}
   _heightOffsetLines: 0.1125
   _drawing: 0
-  _finalMultiplier: 20
-  _inPassLineMultiplier: 2
-  passLineWidth: 2
-  threatRadius: 3
-  _threatRadiusPenaltySoftener: 1
-  _baseSafety: 100
+  _safetyCalculationSettings: {fileID: 11400000, guid: a07663b544d9bde4ba464e383a28a0fe, type: 2}
   _allSoccerPlayers: []
 --- !u!1 &5313539316311406445
 GameObject:

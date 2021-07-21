@@ -153,7 +153,7 @@ namespace TheLuxGames.Visualizer.Behaviours
 
         public void StartLoadingReplayAsync(string filePath)
         {
-            //TODO Replace with specific coroutine
+            //Should ideally disable specific coroutine or just use async
             StopAllCoroutines();
             StartCoroutine(LoadReplayAsync(filePath));
         }
@@ -231,7 +231,7 @@ namespace TheLuxGames.Visualizer.Behaviours
 
         public void SetFrameRate(string frameRate)
         {
-            this._replay.FrameRate = int.Parse(frameRate);
+            _replay.FrameRate = int.Parse(frameRate);
         }
     }
 }

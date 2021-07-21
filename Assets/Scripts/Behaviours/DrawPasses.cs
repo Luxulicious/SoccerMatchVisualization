@@ -1,20 +1,22 @@
 ﻿using Sirenix.OdinInspector;
 using System.Collections.Generic;
 using System.Linq;
+using TheLuxGames.Visualizer.Settings.Soccer.Passing;
 using TheLuxGames.Visualizer.Util;
 using UnityEngine;
 
-namespace TheLuxGames.Visualizer.Behaviours.Soccer
+namespace TheLuxGames.Visualizer.Behaviours.Soccer.Passing
 {
+
+    public struct Threat
+    {
+        public float distanceFromReceiver;
+        public float distanceFromPasser;
+        public bool inPassline;
+    }
+
     public class DrawPasses : MonoBehaviour
     {
-        public struct Threat
-        {
-            public float distanceFromReceiver;
-            public float distanceFromPasser;
-            public bool inPassline;
-        }
-
         [SerializeField, Required] private SoccerPlayerComponent _passer;
         [SerializeField, Required] private int _teamIdOfPasser;
 
@@ -30,12 +32,13 @@ namespace TheLuxGames.Visualizer.Behaviours.Soccer
         [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private float _heightOffsetLines = 0.1125f;
         [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private bool _drawing = false;
 
-        [SerializeField, FoldoutGroup("Safety Formula Settings")] private float _finalMultiplier = 2f;
-        [SerializeField, FoldoutGroup("Safety Formula Settings")] private float _inPassLineMultiplier = 1.5f;
-        [SerializeField, FoldoutGroup("Safety Formula Settings")] private float passLineWidth = 1f;
-        [SerializeField, FoldoutGroup("Safety Formula Settings")] private float threatRadius = 2f;
-        [SerializeField, FoldoutGroup("Safety Formula Settings")] private float _threatRadiusPenaltySoftener = 2f;
-        [SerializeField, FoldoutGroup("Safety Formula Settings")] private float _baseSafety = 100f;
+        [ShowInInspector, Required, FoldoutGroup("Safety Formula Settings")] private SafetyCalculationSettingsData _safetyCalculationSettings;
+        [ShowInInspector, FoldoutGroup("Safety Formula Settings")] private float _finalMultiplier => _safetyCalculationSettings != null ? _safetyCalculationSettings.Settings.FinalMultiplier : 2f;
+        [ShowInInspector, FoldoutGroup("Safety Formula Settings")] private float _inPassLineMultiplier => _safetyCalculationSettings != null ? _safetyCalculationSettings.Settings.InPassLineMultiplier : 1.5f;
+        [ShowInInspector, FoldoutGroup("Safety Formula Settings")] private float passLineWidth => _safetyCalculationSettings != null ? _safetyCalculationSettings.Settings.PassLineWidth : 1f;
+        [ShowInInspector, FoldoutGroup("Safety Formula Settings")] private float threatRadius => _safetyCalculationSettings != null ? _safetyCalculationSettings.Settings.ThreatRadius : 2f;
+        [ShowInInspector, FoldoutGroup("Safety Formula Settings")] private float _threatRadiusPenaltySoftener => _safetyCalculationSettings != null ? _safetyCalculationSettings.Settings.ThreatRadiusPenaltySoftener : 2f;
+        [ShowInInspector, FoldoutGroup("Safety Formula Settings")] private float _baseSafety => _safetyCalculationSettings != null ? _safetyCalculationSettings.Settings.BaseSafety : 100f;
 
         [SerializeField, ReadOnly] private List<SoccerPlayerComponent> _allSoccerPlayers = new List<SoccerPlayerComponent>();
 

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14e5d15798484a041af8f02f63b2347e, type: 3}
+  m_Name: Safety Calculation Setttings
+  m_EditorClassIdentifier: 
+  _settings:
+    _finalMultiplier: 20
+    _inPassLineMultiplier: 2
+    passLineWidth: 2
+    threatRadius: 3
+    _threatRadiusPenaltySoftener: 1
+    _baseSafety: 100
