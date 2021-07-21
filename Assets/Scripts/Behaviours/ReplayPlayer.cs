@@ -102,6 +102,11 @@ namespace TheLuxGames.Visualizer.Behaviours
         [SerializeField, ReadOnly, HideInEditorMode] private float timeStep => 1.000000000f / _replay.FrameRate;
         [SerializeField, ReadOnly, HideInEditorMode] private bool _started = false;
 
+        protected virtual void Awake()
+        {
+            
+        }
+
         private void Update()
         {
             if (!Playing)
