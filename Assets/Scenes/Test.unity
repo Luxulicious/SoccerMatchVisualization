@@ -549,7 +549,7 @@ MonoBehaviour:
       Data: 2|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: Assets.Scripts.Domain.SoccerBall, Assembly-CSharp
+      Data: TheLuxGames.Visualizer.Models.Soccer.SoccerBall, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -567,7 +567,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: Assets.Scripts.Domain.SoccerPlayer, Assembly-CSharp
+      Data: TheLuxGames.Visualizer.Models.Soccer.SoccerPlayer, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 
@@ -1058,6 +1058,10 @@ PrefabInstance:
     - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
       propertyPath: _onFirstFrameOfReplayLoaded.m_PersistentCalls.m_Calls.Array.data[6].m_Arguments.m_BoolArgument
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2729393319298392237, guid: b6725c94343a4114dab4178678135e4f, type: 3}
+      propertyPath: _readerAsReference
+      value: Assembly-CSharp TheLuxGames.Visualizer.Readers.Soccer.SoccerReplayReader
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b6725c94343a4114dab4178678135e4f, type: 3}
