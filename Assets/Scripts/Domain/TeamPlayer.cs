@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace TheLuxGames.Visualizer.Domain
 {
-
     public class TeamPlayer : Player
     {
         [SerializeField] private int _teamId;

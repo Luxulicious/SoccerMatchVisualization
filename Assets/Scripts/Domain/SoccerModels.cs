@@ -1,6 +1,5 @@
 ﻿using System;
 using TheLuxGames.Visualizer.Domain;
-using UnityEngine;
 
 namespace Assets.Scripts.Domain
 {

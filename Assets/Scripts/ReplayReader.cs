@@ -1,24 +1,20 @@
 ﻿using Assets.Scripts.Domain;
-using Sirenix.OdinInspector;
-using Sirenix.Utilities;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using TheLuxGames.Visualizer.Domain;
 using UnityEngine;
 using Object = TheLuxGames.Visualizer.Domain.Object;
 
 namespace Assets.Scripts
 {
-
     //TODO Maybe make the delimiters just char arrays by default
-    //TODO Maybe make the pattern detection properties and methods also virtual... 
-    public abstract class ReplayReader<TReplay, TBall, TPlayer> : IReplayReader<TReplay> 
-        where TReplay : Replay, new() 
+    //TODO Maybe make the pattern detection properties and methods also virtual...
+    public abstract class ReplayReader<TReplay, TBall, TPlayer> : IReplayReader<TReplay>
+        where TReplay : Replay, new()
         where TBall : Ball, new()
         where TPlayer : Player, new()
     {
@@ -34,7 +30,6 @@ namespace Assets.Scripts
         public virtual float CoordinateRatio => 100;
         public virtual bool SwitchYZCoordinates => true;
 
-      
         public virtual TReplay ReadFromFile(string filePath)
         {
             TReplay replay = new TReplay();
@@ -69,7 +64,6 @@ namespace Assets.Scripts
             yield return null;
         }
 
-
         protected virtual Frame GetFrame(string frame)
         {
             var f = new Frame();
@@ -77,7 +71,7 @@ namespace Assets.Scripts
             int frameIndex = GetFrameIndex(frame);
             f.FrameIndex = frameIndex;
             //Get objects
-            //TODO Maybe change this to something more insert effecient 
+            //TODO Maybe change this to something more insert effecient
             List<Object> objects = GetObjects(frame);
             f.Objects.AddRange(objects);
             return f;
@@ -217,14 +211,11 @@ namespace Assets.Scripts
         {
             return Regex.Matches(frame, ballPattern, RegexOptions.Singleline).Cast<Match>()
                 .Select(m => m.Value)
-                .ToArray(); 
+                .ToArray();
         }
-
-
     }
 
     public class SoccerReplayReader : ReplayReader<SoccerReplay, SoccerBall, SoccerPlayer>
     {
-
     }
 }

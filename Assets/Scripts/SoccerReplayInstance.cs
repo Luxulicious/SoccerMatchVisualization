@@ -1,8 +1,6 @@
 ﻿using Assets.Scripts;
 using Assets.Scripts.Domain;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Object = TheLuxGames.Visualizer.Domain.Object;
 

@@ -555,9 +555,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2223abbb4821e294abbc77f4e0d7512d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _teamId: 0
+  _passer: {fileID: 2978976694516431990}
+  _teamIdOfPasser: 0
   _validTeamIds: 0000000001000000
-  _playerTransform: {fileID: 7431833098890378207}
+  _passerTransform: {fileID: 7431833098890378207}
   _gradient:
     serializedVersion: 2
     key0: {r: 1, g: 0, b: 0, a: 1}
@@ -591,8 +592,6 @@ MonoBehaviour:
   - {fileID: 5294320031961215173}
   _lineRendererPrefab: {fileID: 3739773155026473833, guid: 8091b52a17195bc4b96efef8a3e2392b, type: 3}
   _lineRendererParentTransform: {fileID: 6733244711837799209}
-  _allSoccerPlayers: []
-  _passer: {fileID: 2978976694516431990}
   _heightOffsetLines: 0.1125
   _drawing: 0
   _finalMultiplier: 20
@@ -600,6 +599,8 @@ MonoBehaviour:
   passLineWidth: 2
   threatRadius: 3
   _threatRadiusPenaltySoftener: 1
+  _baseSafety: 100
+  _allSoccerPlayers: []
 --- !u!1 &5313539316311406445
 GameObject:
   m_ObjectHideFlags: 0

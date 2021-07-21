@@ -1,7 +1,6 @@
 ﻿using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TheLuxGames.Visualizer.Domain;
@@ -14,10 +13,11 @@ public class ReplayInstance : SerializedMonoBehaviour
     [OdinSerialize, FoldoutGroup("Construction")] private Dictionary<Type, UnityEngine.Object> _typeToPrefabMap = new Dictionary<Type, UnityEngine.Object>();
     [SerializeField, FoldoutGroup("Construction")] private Transform _parentTransform;
     [SerializeField, FoldoutGroup("Construction")] private bool _createCollectionParentObject = true;
+
     [ReadOnly, HideInEditorMode, ShowInInspector, FoldoutGroup("Instance")]
     private Dictionary<int, ObjectComponent> _objectIdToInstanceMap = new Dictionary<int, ObjectComponent>();
 
-    public void Destruct() 
+    public void Destruct()
     {
         if (_objectIdToInstanceMap.Any())
         {
@@ -47,7 +47,7 @@ public class ReplayInstance : SerializedMonoBehaviour
             ConstructObject(o);
     }
 
-    private UnityEngine.GameObject ConstructObject(Object o) 
+    private UnityEngine.GameObject ConstructObject(Object o)
     {
         foreach (var t in _typeToPrefabMap.Keys)
         {

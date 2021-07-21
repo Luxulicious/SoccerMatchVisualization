@@ -1,7 +1,5 @@
 ﻿using Sirenix.OdinInspector;
-using Sirenix.Serialization;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,7 +8,7 @@ public class SetMaterialBasedOnInt : MonoBehaviour
 {
     //Should have been a dictionary but Unity serialization decided to not cooperate
     [Serializable]
-    public class IntMaterial 
+    public class IntMaterial
     {
         [SerializeField] public int index;
         [SerializeField] public Material material;

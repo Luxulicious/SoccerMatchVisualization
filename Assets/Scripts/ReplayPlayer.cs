@@ -1,16 +1,18 @@
 ﻿using Assets.Scripts;
+using SimpleFileBrowser;
 using Sirenix.OdinInspector;
 using System;
 using System.Collections;
 using TheLuxGames.Visualizer.Domain;
 using UnityEngine;
 using UnityEngine.Events;
-using SimpleFileBrowser;
 
 [Serializable]
 public class FrameFrameUnityEvent : UnityEvent<Frame, Frame> { }
+
 [Serializable]
 public class ReplayUnityEvent : UnityEvent<Replay> { }
+
 [Serializable]
 public class FrameUnityEvent : UnityEvent<Frame> { }
 
@@ -24,6 +26,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     [SerializeField, HideInInspector] private UnityEngine.Object _readerAsField;
 
     [SerializeField, ReadOnly, HideInEditorMode] private bool _paused = true;
+
     [ShowInInspector, HideInEditorMode]
     public bool Playing => !_paused && Playable;
 
@@ -59,7 +62,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         {
             if (Reader == null) throw new NullReferenceException("Reader cannot be left empty!");
             var r = Reader as IReplayReader<TReplay>;
-            if(r == null) throw new Exception("Invalid reader");
+            if (r == null) throw new Exception("Invalid reader");
             return r;
         }
     }
@@ -78,7 +81,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         {
             if (_currentFrame == null)
             {
-                if(_replay != null)
+                if (_replay != null)
                     _currentFrame = _replay.FirstFrameIndex;
                 return _currentFrame != null ? _currentFrame.Value : -1;
             }
@@ -102,11 +105,9 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         }
     }
 
-
     [SerializeField, ReadOnly, HideInEditorMode] private float elapsedTimeSinceLastFrame = 0f;
     [SerializeField, ReadOnly, HideInEditorMode] private float timeStep => 1.000000000f / _replay.FrameRate;
     [SerializeField, ReadOnly, HideInEditorMode] private bool _started = false;
-
 
     private void Update()
     {
@@ -155,7 +156,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
 
         SimpleFileBrowser.FileBrowser.ShowLoadDialog(
             onSuccess: StartLoadingReplayAsync, pickMode: FileBrowser.PickMode.Files, allowMultiSelection: false, title: FILE_DIALOG_TITLE, onCancel: OnCancel);
-//#endif
+        //#endif
     }
 
     private void OnCancel()
@@ -169,14 +170,12 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         StartLoadingReplayAsync(filePath[0]);
     }
 
-
     public void StartLoadingReplayAsync(string filePath)
-    {       
+    {
         //TODO Replace with specific coroutine
         StopAllCoroutines();
         StartCoroutine(LoadReplayAsync(filePath));
     }
-
 
     protected virtual IEnumerator LoadReplayAsync(string filePath)
     {
@@ -205,7 +204,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
         }
     }
 
-#region Playback
+    #region Playback
 
     [Button("Play"), HideInEditorMode]
     public void Play()
@@ -224,7 +223,7 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     [Button("Reset"), HideInEditorMode]
     public void ResetToFirstFrame()
     {
-        CurrentFrame = _replay.FirstFrameIndex.Value; 
+        CurrentFrame = _replay.FirstFrameIndex.Value;
         Pause();
     }
 
@@ -249,5 +248,6 @@ public class ReplayPlayer<TReplay, TBall, TPlayer> : MonoBehaviour
     {
         CurrentFrame += steps;
     }
-#endregion
+
+    #endregion Playback
 }

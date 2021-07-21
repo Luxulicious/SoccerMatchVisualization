@@ -1,7 +1,4 @@
 ﻿using Sirenix.OdinInspector;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
@@ -52,7 +49,7 @@ public abstract class FindNearestObjectComponent<TComponent, TEvent> : MonoBehav
     public virtual void CastAll()
     {
         RaycastHit[] hits = Physics.SphereCastAll(_transformOrigin.position, Mathf.Abs(_radius), _transformOrigin.position, _radius, _layerMask, QueryTriggerInteraction.Collide);
-        RaycastHit? nearbiestHit = 
+        RaycastHit? nearbiestHit =
         hits.Where(x => x.collider.GetComponent<TComponent>() != null)?
             .OrderBy(x => x.distance)?
             .FirstOrDefault();
@@ -63,6 +60,4 @@ public abstract class FindNearestObjectComponent<TComponent, TEvent> : MonoBehav
         }
         Nearbiest = nearbiestHit.Value.collider.GetComponent<TComponent>();
     }
-
-
 }

@@ -7,18 +7,19 @@ using UnityEngine;
 namespace TheLuxGames.Visualizer.Domain
 {
     [Serializable]
-    public class Frame 
+    public class Frame
     {
         [SerializeField] private int _frameIndex;
+
         //TODO This should obviously not be a simple list in the long term due to performance reasons
         [SerializeField] private List<Object> _objects;
 
         public List<Object> Objects
         {
-            get 
+            get
             {
                 if (_objects == null) _objects = new List<Object>();
-                return _objects; 
+                return _objects;
             }
             set
             {
@@ -26,6 +27,7 @@ namespace TheLuxGames.Visualizer.Domain
                 _objects = value;
             }
         }
+
         public int FrameIndex { get => _frameIndex; set => _frameIndex = value; }
 
         [ShowInInspector]

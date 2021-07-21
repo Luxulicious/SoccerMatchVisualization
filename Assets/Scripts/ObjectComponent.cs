@@ -1,17 +1,16 @@
 ﻿using Sirenix.OdinInspector;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Object = TheLuxGames.Visualizer.Domain.Object;
 
 public abstract class ObjectComponent : MonoBehaviour
 {
     public abstract Object Object { get; }
+
     public abstract void AdvanceFrame(Object value);
 }
 
-public abstract class ObjectComponent<TObject> : ObjectComponent  where TObject : Object
+public abstract class ObjectComponent<TObject> : ObjectComponent where TObject : Object
 {
     [SerializeField, InlineProperty, HideLabel, ReadOnly] private TObject _value;
 
@@ -22,7 +21,7 @@ public abstract class ObjectComponent<TObject> : ObjectComponent  where TObject 
 
     protected virtual void Awake()
     {
-        if(!_transform)
+        if (!_transform)
             _transform = this.transform;
     }
 
