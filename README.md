@@ -11,3 +11,5 @@ and the replay player inbetween using something like https://github.com/unity-at
 (Less likely to create merge conflicts)
 - Unit testing for calculating passing-safety (unsure of the exact criteria just yet)
 - A process to filter out faulty data (some players being in an unknown team)
+
+(This project uses Odin Inspector, place the sirenix folder from odin inspector into the plugins folder)
