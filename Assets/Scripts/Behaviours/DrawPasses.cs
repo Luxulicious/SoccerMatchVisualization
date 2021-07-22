@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace TheLuxGames.Visualizer.Behaviours.Soccer.Passing
 {
-
     public struct Threat
     {
         public float distanceFromReceiver;
@@ -17,22 +16,19 @@ namespace TheLuxGames.Visualizer.Behaviours.Soccer.Passing
 
     public class DrawPasses : MonoBehaviour
     {
-        [SerializeField, Required] private SoccerPlayerComponent _passer;
-        [SerializeField, Required] private int _teamIdOfPasser;
+        [SerializeField, Required, FoldoutGroup("Prerequisite Settings")] private SoccerPlayerComponent _passer;
+        [SerializeField, Required, FoldoutGroup("Prerequisite Settings")] private int _teamIdOfPasser;
+        [SerializeField, Required, FoldoutGroup("Prerequisite Settings")] private int[] _validTeamIds;
+        [SerializeField, Required, FoldoutGroup("Prerequisite Settings")] private Transform _passerTransform;
 
-        //TODO This should be extracted to a universal constant/so
-        [SerializeField, Required] private int[] _validTeamIds;
+        [SerializeField, Required, FoldoutGroup("Pass Line Rendering Settings")] private Gradient _gradient;
+        [SerializeField, Required, FoldoutGroup("Pass Line Rendering Settings")] private List<LineRenderer> _lineRenderers;
+        [SerializeField, Required, FoldoutGroup("Pass Line Rendering Settings")] private GameObject _lineRendererPrefab;
+        [SerializeField, Required, FoldoutGroup("Pass Line Rendering Settings")] private Transform _lineRendererParentTransform;
+        [SerializeField, Required, FoldoutGroup("Pass Line Rendering Settings")] private float _heightOffsetLines = 0.1125f;
+        [SerializeField, Required, FoldoutGroup("Pass Line Rendering Settings")] private bool _drawing = false;
 
-        [SerializeField, Required] private Transform _passerTransform;
-
-        [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private Gradient _gradient;
-        [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private List<LineRenderer> _lineRenderers;
-        [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private GameObject _lineRendererPrefab;
-        [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private Transform _lineRendererParentTransform;
-        [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private float _heightOffsetLines = 0.1125f;
-        [SerializeField, Required, FoldoutGroup("Pass Line Rendering")] private bool _drawing = false;
-
-        [ShowInInspector, Required, FoldoutGroup("Safety Formula Settings")] private SafetyCalculationSettingsData _safetyCalculationSettings;
+        [SerializeField, Required, FoldoutGroup("Safety Formula Settings")] private SafetyCalculationSettingsData _safetyCalculationSettings;
         [ShowInInspector, FoldoutGroup("Safety Formula Settings")] private float _finalMultiplier => _safetyCalculationSettings != null ? _safetyCalculationSettings.Settings.FinalMultiplier : 2f;
         [ShowInInspector, FoldoutGroup("Safety Formula Settings")] private float _inPassLineMultiplier => _safetyCalculationSettings != null ? _safetyCalculationSettings.Settings.InPassLineMultiplier : 1.5f;
         [ShowInInspector, FoldoutGroup("Safety Formula Settings")] private float passLineWidth => _safetyCalculationSettings != null ? _safetyCalculationSettings.Settings.PassLineWidth : 1f;
@@ -46,8 +42,7 @@ namespace TheLuxGames.Visualizer.Behaviours.Soccer.Passing
         {
             get
             {
-                //TODO This should really be done by the instancer/spawner on spawn instead this is not very effecient
-                //This is merely a fallback
+                //Could be optimized by having it be set by the instancer, it's effecient enough for now with a limited amount of players
                 if (!_allSoccerPlayers.Any()) _allSoccerPlayers = FindObjectsOfType<SoccerPlayerComponent>().ToList();
                 return _allSoccerPlayers;
             }

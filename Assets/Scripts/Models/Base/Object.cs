@@ -8,7 +8,6 @@ namespace TheLuxGames.Visualizer.Models
     {
         [SerializeField] private int _id = -1;
 
-        //TODO Maybe not depend on Unity vector3
         [SerializeField] private Vector3 _position;
 
         public Vector3 Position { get => _position; set => _position = value; }

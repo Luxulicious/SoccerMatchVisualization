@@ -11,7 +11,6 @@ namespace TheLuxGames.Visualizer.Models
     {
         [SerializeField] private int _frameIndex;
 
-        //TODO This should obviously not be a simple list in the long term due to performance reasons
         [SerializeField] private Dictionary<int, Object> _objects;
 
         public Dictionary<int, Object> Objects

@@ -68,7 +68,6 @@ namespace TheLuxGames.Visualizer.Readers
             int frameIndex = GetFrameIndex(frame);
             f.FrameIndex = frameIndex;
             //Get objects
-            //TODO Maybe change this to something more insert effecient
             Dictionary<int, Object> objects = GetObjects(frame);
             objects.ForEach(o => f.Objects.Add(o.Key, o.Value));
             return f;

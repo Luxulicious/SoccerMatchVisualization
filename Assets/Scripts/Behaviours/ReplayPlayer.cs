@@ -5,6 +5,7 @@ using System.Collections;
 using TheLuxGames.Visualizer.Events;
 using TheLuxGames.Visualizer.Models;
 using TheLuxGames.Visualizer.Readers;
+using TheLuxGames.Visualizer.Readers.Soccer;
 using UnityEngine;
 
 namespace TheLuxGames.Visualizer.Behaviours
@@ -102,9 +103,9 @@ namespace TheLuxGames.Visualizer.Behaviours
         [SerializeField, ReadOnly, HideInEditorMode] private float timeStep => 1.000000000f / _replay.FrameRate;
         [SerializeField, ReadOnly, HideInEditorMode] private bool _started = false;
 
-        protected virtual void Awake()
+        private void Awake()
         {
-            
+            if (Reader == null) Reader = new SoccerReplayReader();
         }
 
         private void Update()
